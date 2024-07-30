@@ -3,7 +3,7 @@ from tkinter import filedialog, Label
 from PIL import Image, ImageTk
 import preprocess
 import feature_extraction
-import classify
+import classification
 
 class ImageApp:
     def __init__(self, root):
@@ -64,9 +64,10 @@ class ImageApp:
 
     def classify_image(self):
         if self.image_paths[2]:
-            result = classify.classify(self.image_paths[1])
-            self.placeholders[3].config(text=result)
-            self.placeholders[3].text = result
+            result, confidence = classification.classify(self.image_paths[1])
+            formatted_result = '{result}\n{confidence}'.format(result=result, confidence=confidence)
+            self.placeholders[3].config(text=formatted_result)
+            self.placeholders[3].text = formatted_result
 
     def display_image(self, path, index):
         image = Image.open(path)
