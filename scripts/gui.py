@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import filedialog, Label
 from PIL import Image, ImageTk
 import preprocess
-import landmark
+import feature_extraction
 import classify
 
 class ImageApp:
@@ -30,7 +30,7 @@ class ImageApp:
             image = image.resize((200, 200), Image.LANCZOS)
             photo = ImageTk.PhotoImage(image)
             if i == 3:
-                placeholder = Label(root, borderwidth=2, relief="groove", text="-")
+                placeholder = Label(root, borderwidth=2, height=10, width=20, relief="groove", text="-")
                 placeholder.grid(row=1, column=i, padx=10, pady=10)
                 self.placeholders.append(placeholder)
             else:
@@ -58,7 +58,7 @@ class ImageApp:
     def extract_feature(self):
         if self.image_paths[1]:
             extracted_path = '../assets/extracted.jpg'
-            landmark.extract_feature(self.image_paths[1], extracted_path)
+            feature_extraction.plot_landmarks(self.image_paths[1], extracted_path)
             self.image_paths[2] = extracted_path
             self.display_image(self.image_paths[2], 2)  # Display extracted features in the third placeholder
 
