@@ -1,12 +1,8 @@
-import numpy as np
 import os
 import pickle
 import time
 import sys
 import feature_extraction
-import logging
-
-logger = logging.getLogger(__name__)
 
 # Minimum number of images per class
 min_nrof_image_per_class = 10
@@ -18,20 +14,20 @@ dataset_filename = os.path.join(model_dir,'dataset.pkl')
 
 def main():
     start_time = time.time()
-    labels, embeddings, class_names = _prepare_dataset('../preprocessed_data')
+    labels, embeddings = _prepare_dataset('../preprocessed_data')
     with open(dataset_filename, 'wb') as outfile:
-        pickle.dump((labels, embeddings, class_names), outfile)
-    logger.info('Completed in {} seconds'.format(time.time() - start_time))
+        pickle.dump((labels, embeddings), outfile)
+    print('\n\nCompleted in {} seconds'.format(time.time() - start_time))
+    print('Dataset size: {}'.format(len(labels)))
 
 
 # brief : Load previously saved dataset
-# return:   labels: index of class_names (y)
+# return:   labels: class names (y) eg. John Doe
 #           embeddings: facial encodings of subject (x)
-#           class_names: list of categories/classes eg. Jason, John
 def load_dataset():
     with open(dataset_filename, 'rb') as f:
-        labels, embeddings, class_names = pickle.load(f)
-        return labels, embeddings, class_names
+        labels, embeddings = pickle.load(f)
+        return labels, embeddings
 
 
 # brief :   Shows the current progress of the program
@@ -51,13 +47,11 @@ def _progress(count, total, status=''):
 
 # brief :   Read the images in input dir and format it nicely into a list
 # param :   input_dir: absolute path to the input directory
-# return:   labels: index of class_names (y)
+# return:   labels: class names (y) eg. John Doe
 #           embeddings: facial encodings of subject (x)
-#           class_names: list of categories/classes eg. Jason, John
 def _prepare_dataset(input_dir):
     current = 0
     total = _get_total_image(input_dir)
-    class_names = _get_class_names(input_dir)
     labels = []
     embeddings = []
 
@@ -89,25 +83,9 @@ def _prepare_dataset(input_dir):
                 continue
             # append into array
             embeddings.append(face_encodings[0])
-            labels.append(class_names.index(dir))
+            labels.append(dir)
 
-    return labels, embeddings, class_names
-
-
-# brief :   Goes through the input dir and get a list of qualified names, qualified means > 30 images
-# param :   input_dir: the absolute path to the training data directory
-# return:   names: a sorted list of qualified names
-def _get_class_names(input_dir):
-    names = []
-    for dir in os.listdir(input_dir):
-        if not dir.startswith('.'):
-            dir_path = os.path.join(input_dir,dir)
-            if len(os.listdir(dir_path)) < min_nrof_image_per_class:
-                continue
-            names.append(dir)
-
-    names.sort()
-    return names
+    return labels, embeddings
 
 
 # brief :   Calculate the total number of images to process, purpose to track progress

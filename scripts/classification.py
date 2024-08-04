@@ -26,14 +26,14 @@ def classify(input_path):
     # Read model
     with open(classifier_file, 'rb') as f:
         # Load the data inside the model
-        model, class_names = pickle.load(f)
+        model, label_encoder = pickle.load(f)
         # Make predictions on the face encodings
         predictions = model.predict_proba(face_encodings)
 
         best_class_indices = np.argmax(predictions, axis=1)
         best_class_probabilities = predictions[np.arange(len(best_class_indices)), best_class_indices]
 
-        best_class = class_names[best_class_indices[0]]
+        best_class = label_encoder.inverse_transform([best_class_indices[0]])[0]
         best_class_probability = best_class_probabilities[0]
 
         return best_class, best_class_probability
