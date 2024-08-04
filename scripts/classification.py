@@ -23,17 +23,25 @@ classifier_file = os.path.join(model_dir,'classifier.pkl')
 def classify(input_path):
     face_encodings = feature_extraction.get_face_encodings(input_path)
 
-    # Read model
+    # Load model
+    model, label_encoder = load_model()
+
+    # Make predictions on the face encodings
+    predictions = model.predict_proba(face_encodings)
+
+    best_class_indices = np.argmax(predictions, axis=1)
+    best_class_probabilities = predictions[np.arange(len(best_class_indices)), best_class_indices]
+
+    best_class = label_encoder.inverse_transform([best_class_indices[0]])[0]
+    best_class_probability = best_class_probabilities[0]
+
+    return best_class, best_class_probability
+        
+
+# brief :   Load previously trained model
+# return:   model: SVM model
+#           label_encoder: sklearn.LabelEncoder()
+def load_model():
     with open(classifier_file, 'rb') as f:
-        # Load the data inside the model
         model, label_encoder = pickle.load(f)
-        # Make predictions on the face encodings
-        predictions = model.predict_proba(face_encodings)
-
-        best_class_indices = np.argmax(predictions, axis=1)
-        best_class_probabilities = predictions[np.arange(len(best_class_indices)), best_class_indices]
-
-        best_class = label_encoder.inverse_transform([best_class_indices[0]])[0]
-        best_class_probability = best_class_probabilities[0]
-
-        return best_class, best_class_probability
+        return model, label_encoder

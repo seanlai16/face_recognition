@@ -1,10 +1,12 @@
 import time
 import os
 import pickle
+import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.svm import SVC
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.model_selection import KFold, cross_val_score, GridSearchCV
 import data_preparation
 
@@ -63,6 +65,14 @@ def main():
     # Save model
     with open(classifier_filename, 'wb') as outfile:
         pickle.dump((best_model, label_encoder), outfile)
+
+    # Confusion Matrix
+    cm = confusion_matrix(y_test, y_pred)
+    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
+    plt.title('Confusion Matrix')
+    plt.show()
 
 
 if __name__ == '__main__':
