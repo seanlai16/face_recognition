@@ -22,9 +22,13 @@ face_detector = dlib.get_frontal_face_detector()
 # param :   path_to_image: absolute path to an image
 # return:   face_encodings: a list of np array storing face encodings in 128 dimensions
 def get_face_encodings(path_to_image):
+	# Read image from path
     image = cv2.imread(path_to_image)
+	# Detect face
     detected_faces = face_detector(image,1)
+	# Detect facial landmarks for each face
     shaped_faces = [shape_predictor(image,face) for face in detected_faces]
+	# Compute 128-D facial vectors for each face
     face_encodings = [np.array(face_recognition_model.compute_face_descriptor(image,face_pose,1)) for face_pose in shaped_faces]
     return face_encodings
 
