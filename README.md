@@ -11,6 +11,6 @@
 
 1. run `python preprocess.py` to preprocess the training set in `/training_data`
 2. run `python data_preparation.py` to extract features from image and save as labels & facial embeddings
-3. run `python training_validation.py` to train and validate model
+3. run `python training_and_validation.py` to train and validate model
 4. run `python gui.py` to open GUI to test the trained model on unseen data
 5. run `python visualisation.py` to visualise feature space in 3D
