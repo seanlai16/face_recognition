@@ -6,7 +6,7 @@ import seaborn as sns
 from sklearn.svm import SVC
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, confusion_matrix
 from sklearn.model_selection import KFold, cross_val_score, GridSearchCV
 import data_preparation
 
@@ -48,6 +48,11 @@ def main():
     # Get the best model from GridSearchCV
     best_model = grid_search.best_estimator_
     print(f'Best hyperparameters: {grid_search.best_params_}')
+    print('Training Completed in {} seconds'.format(time.time() - start_time))
+
+    # Save model
+    with open(classifier_filename, 'wb') as outfile:
+        pickle.dump((best_model, label_encoder), outfile)
 
     # Evaluate the best model using cross-validation
     cv_scores = cross_val_score(best_model, x_train, y_train, cv=kf)
@@ -56,15 +61,18 @@ def main():
 
     # Make predictions
     y_pred = best_model.predict(x_test)
-
-    # Evaluate the model
+    
+    # Compute accuracy
     accuracy = accuracy_score(y_test, y_pred)
     print(f'Accuracy: {accuracy}')
-    print('Completed in {} seconds'.format(time.time() - start_time))
+    
+    # Compute precision
+    precision = precision_score(y_test, y_pred, average='weighted')
+    print(f'Precision: {precision}')
 
-    # Save model
-    with open(classifier_filename, 'wb') as outfile:
-        pickle.dump((best_model, label_encoder), outfile)
+    # Compute recall (sensitivity)
+    recall = recall_score(y_test, y_pred, average='weighted')
+    print(f'Recall (sensitivity): {recall}')
 
     # Confusion Matrix
     cm = confusion_matrix(y_test, y_pred)
@@ -73,6 +81,16 @@ def main():
     plt.ylabel('Actual')
     plt.title('Confusion Matrix')
     plt.show()
+
+    # Compute specificity
+    # Specificity = TN / (TN + FP)
+    # For multi-class classification, compute specificity for each class
+    specificity = []
+    for i in range(len(cm)):
+        tn = cm.sum() - (cm[i, :].sum() + cm[:, i].sum() - cm[i, i])
+        fp = cm[:, i].sum() - cm[i, i]
+        specificity.append(tn / (tn + fp))
+    print(f'Specificity: {specificity}')
 
 
 if __name__ == '__main__':
